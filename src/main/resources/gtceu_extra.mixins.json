@@ -1,0 +1,14 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "co.johnrowley.gtceu_extra.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "gtceu_extra.refmap.json",
+  "mixins": [
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
