@@ -12,15 +12,15 @@ import static com.gregtechceu.gtceu.common.data.GTItems.attach;
 @SuppressWarnings({"Convert2MethodRef", "unused"})
 public class GTCEuExtraItems {
     // region algae
-//    public static final ItemEntry<ComponentItem> BROWN_ALGAE = GTCEU_EXTRA_REGISTRATE.item("brown_algae_item", ComponentItem::create)
-//            .lang("Brown Algae")
-//            .properties(p -> p.stacksTo(16))
-//            //.onRegister(attach(new GpsTrackerBehaviour()))
-//            .tab(GTCEuExtraCreativeModeTabs.GTCEU_EXTRA.getKey(), creativeModeTabModifier -> {
-//                //
-//            })
-//            .defaultModel()
-//            .register();
+    public static final ItemEntry<ComponentItem> BROWN_ALGAE = GTCEU_EXTRA_REGISTRATE.item("brown_algae_item", ComponentItem::create)
+            .lang("Brown Algae")
+            .properties(p -> p.stacksTo(16))
+            //.onRegister(attach(new GpsTrackerBehaviour()))
+            .tab(GTCEuExtraCreativeModeTabs.GTCEU_EXTRA.getKey(), creativeModeTabModifier -> {
+                //
+            })
+            .defaultModel()
+            .register();
     // endregion
 
     // region food processor

@@ -44,7 +44,7 @@ public class GTCEuExtra {
     public GTCEuExtra() {
         GTCEuExtraBlocks.init();
         GTCEuExtraItems.init();
-        //GTCEuExtraCreativeModeTabs.init();
+        GTCEuExtraCreativeModeTabs.init();
         GTCEuExtraRegistry.GTCEU_EXTRA_REGISTRATE.registerRegistrate();
 
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
