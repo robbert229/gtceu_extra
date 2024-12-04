@@ -1,5 +1,6 @@
 package co.johnrowley.gtceu_extra.common.data;
 
+import co.johnrowley.gtceu_extra.registry.GTCEuExtraRegistry;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
 
 import com.gregtechceu.gtceu.GTCEu;
@@ -7,6 +8,7 @@ import com.gregtechceu.gtceu.api.GTCEuAPI;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.gui.GuiTextures;
 import com.gregtechceu.gtceu.api.recipe.*;
+import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 import com.gregtechceu.gtceu.common.data.GTSoundEntries;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.crafting.RecipeType;

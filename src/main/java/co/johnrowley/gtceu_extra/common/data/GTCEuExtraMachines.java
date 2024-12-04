@@ -26,7 +26,7 @@ public class GTCEuExtraMachines {
             GTRegistryInfo.registerFor(GTRegistries.MACHINES.getRegistryName());
         }
 
-        ModLoader.get().postEvent(new GTCEuAPI.RegisterEvent<>(GTRegistries.MACHINES, MachineDefinition.class));
-        GTRegistries.MACHINES.freeze();
+//        ModLoader.get().postEvent(new GTCEuAPI.RegisterEvent<>(GTRegistries.MACHINES, MachineDefinition.class));
+//        GTRegistries.MACHINES.freeze();
     }
 }

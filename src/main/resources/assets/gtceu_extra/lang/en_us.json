@@ -1,0 +1,36 @@
+{
+  "item.gtceu_extra.brown_algae": "Brown Algae",
+  "item.gtceu_extra.brown_algae.tooltip": "",
+  "item.gtceu_extra.red_algae": "Red Algae",
+  "item.gtceu_extra.red_algae.tooltip": "",
+  "item.gtceu_extra.golden_brown_algae": "Golden Brown Algae",
+  "item.gtceu_extra.golden_brown_algae.tooltip": "",
+  "item.gtceu_extra.green_algae": "Green Algae",
+  "item.gtceu_extra.green_algae.tooltip": "",
+  "item.gtceu_extra.red_cellulose": "Red Cellulose",
+  "item.gtceu_extra.red_cellulose.tooltip": "",
+  "item.gtceu_extra.golden_brown_cellulose": "Golden Brown Cellulose",
+  "item.gtceu_extra.golden_brown_cellulose.tooltip": "",
+  "item.gtceu_extra.green_cellulose": "Green Cellulose",
+  "item.gtceu_extra.green_cellulose.tooltip": "",
+
+  "item.gtceu_extra.ulv_battery_management_cover": "ULV Battery Management Cover",
+  "item.gtceu_extra.ulv_battery_management_cover.tooltip": "A cover that extracts, and inserts batteries on ULV machines",
+  "item.gtceu_extra.lv_battery_management_cover": "LV Battery Management Cover",
+  "item.gtceu_extra.lv_battery_management_cover.tooltip": "A cover that extracts, and inserts batteries on LV machines",
+  "item.gtceu_extra.mv_battery_management_cover": "MV Battery Management Cover",
+  "item.gtceu_extra.mv_battery_management_cover.tooltip": "A cover that extracts, and inserts batteries on MV machines",
+  "item.gtceu_extra.hv_battery_management_cover": "HV Battery Management Cover",
+  "item.gtceu_extra.hv_battery_management_cover.tooltip": "A cover that extracts, and inserts batteries on HV machines",
+
+  "material.gtceu_extra.brown_eutrophic_water": "Brown Eutrophic Water",
+  "material.gtceu_extra.brown_eutrophic_water.tooltip": "Water rich in Brown Algae",
+  "material.gtceu_extra.green_eutrophic_water": "Green Eutrophic Water",
+  "material.gtceu_extra.green_eutrophic_water.tooltip": "Water rich in Green Algae",
+  "material.gtceu_extra.red_eutrophic_water": "Red Eutrophic Water",
+  "material.gtceu_extra.red_eutrophic_water.tooltip": "Water rich in Red Algae",
+  "material.gtceu_extra.golden_brown_eutrophic_water": "Golden Brown Eutrophic Water",
+  "material.gtceu_extra.golden_brown_eutrophic_water.tooltip": "Water rich in Golden Brown Algae",
+
+  "cover.batterymanagementcover.title": "Battery Management Cover"
+}

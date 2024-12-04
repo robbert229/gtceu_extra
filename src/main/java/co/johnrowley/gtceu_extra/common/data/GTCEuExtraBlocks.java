@@ -12,9 +12,9 @@ public class GTCEuExtraBlocks {
         GTCEU_EXTRA_REGISTRATE.creativeModeTab(() -> GTCEuExtraCreativeModeTabs.GTCEU_EXTRA);
     }
 
-    public static final BlockEntry<Block> TEST = GTCEU_EXTRA_REGISTRATE
-            .block("test", Block::new)
-            .lang("Test")
+    public static final BlockEntry<Block> STERILE_FARM_CASING = GTCEU_EXTRA_REGISTRATE
+            .block("sterile_farm_casing", Block::new)
+            .lang("Sterile Farm Casing")
             .initialProperties(() -> Blocks.COBBLESTONE)
             .simpleItem()
             .register();

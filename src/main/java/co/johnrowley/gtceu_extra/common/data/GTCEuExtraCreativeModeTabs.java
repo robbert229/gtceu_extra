@@ -11,11 +11,8 @@ import static co.johnrowley.gtceu_extra.registry.GTCEuExtraRegistry.GTCEU_EXTRA_
 public class GTCEuExtraCreativeModeTabs {
     public static RegistryEntry<CreativeModeTab> GTCEU_EXTRA = GTCEU_EXTRA_REGISTRATE.defaultCreativeTab(GTCEuExtra.MOD_ID,
                     builder -> builder.displayItems(new GTCreativeModeTabs.RegistrateDisplayItemsGenerator(GTCEuExtra.MOD_ID, GTCEU_EXTRA_REGISTRATE))
-                            .icon(GTCEuExtraBlocks.TEST::asStack)
+                            .icon(GTCEuExtraItems.RED_CELLULOSE::asStack)
                             .title(Component.literal("GregTechCEu Extra Unofficial"))
-                            .displayItems((params, output) -> {
-                                output.accept(GTCEuExtraBlocks.TEST);
-                            })
                             .build())
             .register();
 
