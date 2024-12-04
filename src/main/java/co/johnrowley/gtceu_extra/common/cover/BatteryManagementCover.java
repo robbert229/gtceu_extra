@@ -5,6 +5,7 @@ import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
 import com.gregtechceu.gtceu.api.capability.GTCapabilityHelper;
 import com.gregtechceu.gtceu.api.capability.IControllable;
 import com.gregtechceu.gtceu.api.capability.ICoverable;
+import com.gregtechceu.gtceu.api.capability.IElectricItem;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.cover.CoverBehavior;
 import com.gregtechceu.gtceu.api.cover.CoverDefinition;
@@ -12,10 +13,12 @@ import com.gregtechceu.gtceu.api.cover.IUICover;
 import com.gregtechceu.gtceu.api.gui.GuiTextures;
 import com.gregtechceu.gtceu.api.gui.widget.IntInputWidget;
 import com.gregtechceu.gtceu.api.item.ComponentItem;
+import com.gregtechceu.gtceu.api.item.capability.ElectricItem;
 import com.gregtechceu.gtceu.api.item.component.ElectricStats;
 import com.gregtechceu.gtceu.api.item.component.IItemComponent;
 import com.gregtechceu.gtceu.api.machine.ConditionalSubscriptionHandler;
 import com.gregtechceu.gtceu.api.machine.MachineCoverContainer;
+import com.gregtechceu.gtceu.api.transfer.item.CustomItemStackHandler;
 import com.gregtechceu.gtceu.common.block.BatteryBlock;
 import com.gregtechceu.gtceu.common.cover.StorageCover;
 
@@ -45,11 +48,16 @@ import net.minecraftforge.items.IItemHandler;
 import lombok.Getter;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemHandlerHelper;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Optional;
+import java.util.function.Predicate;
+
+import static co.johnrowley.gtceu_extra.api.gui.GuiTextures.BATTERY_EMPTY_OVERLAY;
+import static co.johnrowley.gtceu_extra.api.gui.GuiTextures.BATTERY_FULL_OVERLAY;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -81,6 +89,7 @@ public class BatteryManagementCover extends CoverBehavior implements IUICover, I
     protected boolean isWorkingEnabled = true;
     public final int tier;
     private Widget ioModeSwitch;
+    private Widget thresholdSwitch;
 
     public BatteryManagementCover(@NotNull CoverDefinition definition, @NotNull ICoverable coverableView,
                                   @NotNull Direction attachedSide, int tier) {
@@ -89,12 +98,9 @@ public class BatteryManagementCover extends CoverBehavior implements IUICover, I
         this.subscriptionHandler = new ConditionalSubscriptionHandler(coverHolder, this::update, this::isSubscriptionActive);
         this.io = IO.OUT;
         this.tier = tier;
+        this.exportWhenFull = true;
     }
-
-    protected @Nullable IItemHandlerModifiable getOwnItemHandler() {
-        return coverHolder.getItemHandlerCap(attachedSide, false);
-    }
-
+    
     protected boolean isSubscriptionActive() {
         return isWorkingEnabled() && getAdjacentItemHandler() != null;
     }
@@ -104,12 +110,8 @@ public class BatteryManagementCover extends CoverBehavior implements IUICover, I
                 .resolve().orElse(null);
     }
 
-    private int getExportThreshold() {
-        return this.exportWhenFull ? 1 : 0;
-    }
-
-    private void setExportThreshold(int value) {
-        this.exportWhenFull = value > 0;
+    private void setExportThreshold(boolean full) {
+        this.exportWhenFull = full;
     }
 
     //////////////////////////////////////
@@ -191,45 +193,31 @@ public class BatteryManagementCover extends CoverBehavior implements IUICover, I
         }
     }
 
-    private static long getCharge(ItemStack itemStack, ElectricStats electricStats) {
-        var tagCompound = itemStack.getTag();
-        if (tagCompound == null)
-            return 0;
-        return Math.min(tagCompound.getLong("Charge"), electricStats.maxCharge);
-    }
 
-    private static Optional<ElectricStats> getElectricStats(ComponentItem component) {
-        return component
-            .getComponents()
-            .stream()
-            .filter(c -> (c instanceof ElectricStats))
-            .map(c -> (ElectricStats)c)
-            .findFirst();
-    }
-
-    private int getAppropriateBatterySlotFromAdjacentItemHandler(IItemHandler adjacent) {
+    private Optional<Pair<Integer, ItemStack>> getAppropriateBatteryFromAdjacentItemHandler(Predicate<ItemStack> predicate, IItemHandler adjacent) {
         for (var i = 0; i < adjacent.getSlots(); i++) {
             var itemStack = adjacent.getStackInSlot(i);
-
-            var item = itemStack.getItem();
-            if (!(item instanceof ComponentItem component)) {
+            if (itemStack.isEmpty()) {
                 continue;
             }
 
-            var optionalStats = getElectricStats(component);
-            if (optionalStats.isEmpty()) {
+            var electricItem = GTCapabilityHelper.getElectricItem(itemStack);
+            if (electricItem == null) {
                 continue;
             }
 
-            var stats = optionalStats.get();
-            if (stats.tier != this.tier) {
+            if (this.tier != electricItem.getTier()) {
                 continue;
             }
 
-            return i;
+            if (!predicate.test(itemStack)){
+                continue;
+            }
+
+            return Optional.of(Pair.of(i, itemStack));
         }
 
-        return -1;
+        return Optional.empty();
     }
 
     private void tryImportBatteries(BatteryBufferMachine machine, IItemHandler adjacent) {
@@ -237,102 +225,100 @@ public class BatteryManagementCover extends CoverBehavior implements IUICover, I
         var slots = batteryInventory.getSlots();
 
         // when there are no batteries available for our tier, we bail.
-        var appropriateBatteryIndex = getAppropriateBatterySlotFromAdjacentItemHandler(adjacent);
-        if (appropriateBatteryIndex == -1) {
+        var appropriateBatteryIndex = getAppropriateBatteryFromAdjacentItemHandler(batteryInventory.getFilter(), adjacent);
+        if (appropriateBatteryIndex.isEmpty()) {
             return;
         }
 
-        var itemStack = adjacent.getStackInSlot(appropriateBatteryIndex);
+        var itemStack = appropriateBatteryIndex
+                .get()
+                .getRight();
 
         ItemStack remainder = ItemHandlerHelper.insertItem(batteryInventory, itemStack, true);
+
         if (remainder.isEmpty() || remainder.getCount() < itemStack.getCount()) {
             ItemHandlerHelper.insertItem(batteryInventory, itemStack, false);
-            ItemHandlerHelper.insertItem(machine.getItemHandlerCap(Direction.DOWN, false), itemStack, false);
-            adjacent.extractItem(appropriateBatteryIndex, 1, false);
+            adjacent.extractItem(appropriateBatteryIndex.get().getLeft(), 1, false);
+
+            for (var i = 0; i < slots; i++) {
+                batteryInventory.onContentsChanged(i);
+            }
         }
     }
 
-    private boolean shouldExportBattery(long charge, long maxCharge) {
+    private boolean shouldExportBattery(IElectricItem item) {
         if (this.exportWhenFull) {
-            return charge == maxCharge;
+            return item.getCharge() == item.getMaxCharge();
         }
 
-        return charge == 0;
+        return item.getCharge() == 0;
     }
 
-    private void tryExportBatteries(BatteryBufferMachine machine, IItemHandler adjacent){
-        var slots = machine.getBatteryInventory().getSlots();
-        var batteryInventory = machine.getBatteryInventory();
+    private Optional<Pair<Integer,ItemStack>> getExportableBatterySlot(IItemHandler batteryInventory) {
+        var slots = batteryInventory.getSlots();
+
         for (var i = 0; i < slots; i++) {
             var itemStack = batteryInventory.getStackInSlot(i);
             if (itemStack.isEmpty()) {
                 continue;
             }
 
-            var item = itemStack.getItem();
-            if (!(item instanceof ComponentItem component)) {
+            var electricItem = GTCapabilityHelper.getElectricItem(itemStack);
+            if (electricItem == null) {
                 continue;
             }
 
-            var optionalStats = getElectricStats(component);
-            if (optionalStats.isEmpty()) {
-                continue;
+            if (this.shouldExportBattery(electricItem)) {
+                return Optional.of(Pair.of(i, itemStack));
             }
-            var stats = optionalStats.get();
+        }
 
-            var charge = getCharge(itemStack, stats);
-            var maxCharge = stats.maxCharge;
+        return Optional.empty();
+    }
 
-            if (this.shouldExportBattery(charge, maxCharge)) {
-                ItemStack remainder = ItemHandlerHelper.insertItem(adjacent, itemStack, true);
-                if (remainder.isEmpty() || remainder.getCount() < itemStack.getCount()) {
-                    ItemHandlerHelper.insertItem(adjacent, itemStack, false);
-                    batteryInventory.extractItem(i, 1, false);
-                }
+    private void tryExportBatteries(BatteryBufferMachine machine, IItemHandler adjacent){
+        var batteryInventory = machine.getBatteryInventory();
+        var slot = getExportableBatterySlot(batteryInventory);
+        if (slot.isEmpty()) {
+            return;
+        }
 
-                return;
-            }
+        var exportableBattery = slot.get().getRight();
+
+        ItemStack remainder = ItemHandlerHelper.insertItem(adjacent, exportableBattery, true);
+        if (remainder.isEmpty() || remainder.getCount() < exportableBattery.getCount()) {
+            ItemHandlerHelper.insertItem(adjacent, exportableBattery, false);
+            batteryInventory.extractItem(slot.get().getLeft(), 1, false);
         }
     }
 
     protected void update() {
         long timer = coverHolder.getOffsetTimer();
 
-        if (timer % 20 == 0) {
-            var machine = getBatteryBufferMachine();
-            if (machine == null) {
-                return;
-            }
-
-            var adjacent = getAdjacentItemHandler();
-            if (adjacent == null) {
-                return;
-            }
-
-
-            switch (io) {
-                case IN -> tryImportBatteries(machine, adjacent);
-                case OUT -> tryExportBatteries(machine, adjacent);
-            }
-
-//            if (itemsLeftToTransferLastSecond > 0) {
-//                var adjacent = getAdjacentItemHandler();
-//                var self = getOwnItemHandler();
-//
-//                if (adjacent != null && self != null) {
-//                    int totalTransferred = switch (io) {
-//                        case IN -> doTransferItems(adjacent, self, itemsLeftToTransferLastSecond);
-//                        case OUT -> doTransferItems(self, adjacent, itemsLeftToTransferLastSecond);
-//                        default -> 0;
-//                    };
-//                    this.itemsLeftToTransferLastSecond -= totalTransferred;
-//                }
-//            }
-//            if (timer % 20 == 0) {
-//                this.itemsLeftToTransferLastSecond = transferRate;
-//            }
-            subscriptionHandler.updateSubscription();
+        if (timer % 20 != 0) {
+            return;
         }
+
+        var machine = getBatteryBufferMachine();
+        if (machine == null) {
+            return;
+        }
+
+        machine
+            .getBatteryInventory()
+            .setFilter(itemStack -> GTCapabilityHelper.getElectricItem(itemStack) != null);
+
+        var adjacent = getAdjacentItemHandler();
+        if (adjacent == null) {
+            return;
+        }
+
+        switch (io) {
+            case IN -> tryImportBatteries(machine, adjacent);
+            case OUT -> tryExportBatteries(machine, adjacent);
+        }
+
+        subscriptionHandler.updateSubscription();
     }
 
     //////////////////////////////////////
@@ -340,36 +326,45 @@ public class BatteryManagementCover extends CoverBehavior implements IUICover, I
     //////////////////////////////////////
     @Override
     public Widget createUIWidget() {
-        final var group = new WidgetGroup(0, 0, 176, 100);
+        final var group = new WidgetGroup(0, 0, 100, 100);
         group.addWidget(new LabelWidget(10, 5, Component.translatable(getUITitle(), GTValues.VN[tier]).getString()));
 
-        group.addWidget(new IntInputWidget(10, 20, 156, 20, this::getExportThreshold, this::setExportThreshold)
-                .setMin(0).setMax(1))
+        thresholdSwitch = new SwitchWidget(10, 20, 20, 20,
+                ((clickData, value) -> {
+                    setExportThreshold(!value);
+                    thresholdSwitch.setHoverTooltips(
+                            LocalizationUtils.format("cover.battery_management_cover.threshold.%s", this.exportWhenFull ? "full": "empty")
+                    );
+                }))
+                .setTexture(
+                    new GuiTextureGroup(GuiTextures.VANILLA_BUTTON, BATTERY_FULL_OVERLAY),
+                    new GuiTextureGroup(GuiTextures.VANILLA_BUTTON, BATTERY_EMPTY_OVERLAY))
+                .setPressed(this.exportWhenFull)
                 .setHoverTooltips(
-                        LocalizationUtils.format("cover.batterymanagementcover.threshold")
+                        LocalizationUtils.format("cover.battery_management_cover.threshold.%s", this.exportWhenFull ? "full": "empty")
                 );
 
         ioModeSwitch = new SwitchWidget(10, 45, 20, 20,
                 (clickData, value) -> {
                     setIo(value ? IO.IN : IO.OUT);
                     ioModeSwitch.setHoverTooltips(
-                            LocalizationUtils.format("cover.batterymanagementcover.mode", LocalizationUtils.format(io.tooltip)));
+                            LocalizationUtils.format("cover.battery_management_cover.mode.%s", LocalizationUtils.format(io.tooltip.toLowerCase())));
                 })
                 .setTexture(
                         new GuiTextureGroup(GuiTextures.VANILLA_BUTTON, IO.OUT.icon),
                         new GuiTextureGroup(GuiTextures.VANILLA_BUTTON, IO.IN.icon))
                 .setPressed(io == IO.IN)
                 .setHoverTooltips(
-                        LocalizationUtils.format("cover.batterymanagementcover.mode", LocalizationUtils.format(io.tooltip)));
+                        LocalizationUtils.format("cover.battery_management_cover.mode.%s", LocalizationUtils.format(io.tooltip.toLowerCase())));
 
+        group.addWidget(thresholdSwitch);
         group.addWidget(ioModeSwitch);
 
         return group;
     }
 
-
     @NotNull
     protected String getUITitle() {
-        return "cover.batterymanagementcover.title";
+        return "cover.battery_management_cover.title";
     }
 }

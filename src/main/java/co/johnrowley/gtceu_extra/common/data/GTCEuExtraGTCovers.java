@@ -1,6 +1,7 @@
 package co.johnrowley.gtceu_extra.common.data;
 
 import co.johnrowley.gtceu_extra.GTCEuExtra;
+import co.johnrowley.gtceu_extra.client.renderer.cover.BatteryManagementCoverRenderer;
 import co.johnrowley.gtceu_extra.common.cover.BatteryManagementCover;
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.cover.CoverDefinition;
@@ -12,12 +13,10 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectFunction;
 import java.util.Arrays;
 import java.util.Locale;
 
-import static com.gregtechceu.gtceu.common.data.GTCovers.ALL_TIERS_WITH_ULV;
-
 public class GTCEuExtraGTCovers {
     public static CoverDefinition[] BATTERY_MANAGEMENT =         BATTERY_MANAGEMENT = registerTiered(
-            "batterymanagement", BatteryManagementCover::new,
-            tier -> new SimpleCoverRenderer(GTCEuExtra.id("block/cover/battery_management")), GTValues.tiersBetween(GTValues.ULV, GTValues.HV));;
+            "battery_management", BatteryManagementCover::new,
+            tier -> BatteryManagementCoverRenderer.INSTANCE, GTValues.tiersBetween(GTValues.ULV, GTValues.HV));;
 
     public static CoverDefinition[] registerTiered(String id,
                                                    CoverDefinition.TieredCoverBehaviourProvider behaviorCreator,
@@ -50,8 +49,6 @@ public class GTCEuExtraGTCovers {
     }
 
     public static void init(){
-//        BATTERY_MANAGEMENT = registerTiered(
-//            "batterymanagement", BatteryManagementCover::new,
-//            tier -> new SimpleCoverRenderer(GTCEuExtra.id("block/cover/overlay_solar_panel")), ALL_TIERS_WITH_ULV);
+
     }
 }

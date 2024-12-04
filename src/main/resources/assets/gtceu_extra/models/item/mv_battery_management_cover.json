@@ -1,0 +1,6 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "gtceu_extra:item/mv_battery_management_cover"
+  }
+}

@@ -32,5 +32,9 @@
   "material.gtceu_extra.golden_brown_eutrophic_water": "Golden Brown Eutrophic Water",
   "material.gtceu_extra.golden_brown_eutrophic_water.tooltip": "Water rich in Golden Brown Algae",
 
-  "cover.batterymanagementcover.title": "Battery Management Cover"
+  "cover.battery_management_cover.title": "Battery Management Cover",
+  "cover.battery_management_cover.mode.import": "Import Battery",
+  "cover.battery_management_cover.mode.export": "Export Battery",
+  "cover.battery_management_cover.threshold.full": "Export When Battery Is Full",
+  "cover.battery_management_cover.threshold.empty": "Export When Battery Is Empty"
 }
