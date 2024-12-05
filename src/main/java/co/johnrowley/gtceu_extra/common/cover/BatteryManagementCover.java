@@ -1,5 +1,6 @@
 package co.johnrowley.gtceu_extra.common.cover;
 
+import co.johnrowley.gtceu_extra.common.utils.BackportUtils;
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
 import com.gregtechceu.gtceu.api.capability.GTCapabilityHelper;
@@ -11,32 +12,23 @@ import com.gregtechceu.gtceu.api.cover.CoverBehavior;
 import com.gregtechceu.gtceu.api.cover.CoverDefinition;
 import com.gregtechceu.gtceu.api.cover.IUICover;
 import com.gregtechceu.gtceu.api.gui.GuiTextures;
-import com.gregtechceu.gtceu.api.gui.widget.IntInputWidget;
-import com.gregtechceu.gtceu.api.item.ComponentItem;
-import com.gregtechceu.gtceu.api.item.capability.ElectricItem;
-import com.gregtechceu.gtceu.api.item.component.ElectricStats;
-import com.gregtechceu.gtceu.api.item.component.IItemComponent;
+
 import com.gregtechceu.gtceu.api.machine.ConditionalSubscriptionHandler;
 import com.gregtechceu.gtceu.api.machine.MachineCoverContainer;
-import com.gregtechceu.gtceu.api.transfer.item.CustomItemStackHandler;
-import com.gregtechceu.gtceu.common.block.BatteryBlock;
-import com.gregtechceu.gtceu.common.cover.StorageCover;
-
 import com.gregtechceu.gtceu.common.machine.electric.BatteryBufferMachine;
-import com.gregtechceu.gtceu.utils.GTTransferUtils;
-import com.llamalad7.mixinextras.sugar.Local;
+import com.gregtechceu.gtceu.config.ConfigHolder;
 import com.lowdragmc.lowdraglib.gui.texture.GuiTextureGroup;
 import com.lowdragmc.lowdraglib.gui.widget.LabelWidget;
 import com.lowdragmc.lowdraglib.gui.widget.SwitchWidget;
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
+import com.lowdragmc.lowdraglib.misc.ItemStackTransfer;
+import com.lowdragmc.lowdraglib.side.item.IItemTransfer;
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.annotation.RequireRerender;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
-
 import com.lowdragmc.lowdraglib.utils.LocalizationUtils;
-import net.dries007.tfc.common.capabilities.InventoryItemHandler;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -44,9 +36,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
-
 import lombok.Getter;
-import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemHandlerHelper;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -100,13 +90,13 @@ public class BatteryManagementCover extends CoverBehavior implements IUICover, I
         this.tier = tier;
         this.exportWhenFull = true;
     }
-    
+
     protected boolean isSubscriptionActive() {
         return isWorkingEnabled() && getAdjacentItemHandler() != null;
     }
 
     protected @Nullable IItemHandler getAdjacentItemHandler() {
-        return GTTransferUtils.getAdjacentItemHandler(coverHolder.getLevel(), coverHolder.getPos(), attachedSide)
+        return BackportUtils.getAdjacentItemHandler(coverHolder.getLevel(), coverHolder.getPos(), attachedSide)
                 .resolve().orElse(null);
     }
 
@@ -177,8 +167,7 @@ public class BatteryManagementCover extends CoverBehavior implements IUICover, I
 
     //////////////////////////////////////
     // ***** Transfer Logic *****//
-
-    /// ///////////////////////////////////
+    //////////////////////////////////////
 
     @Override
     public void onNeighborChanged(Block block, BlockPos fromPos, boolean isMoving) {
@@ -192,7 +181,6 @@ public class BatteryManagementCover extends CoverBehavior implements IUICover, I
             subscriptionHandler.updateSubscription();
         }
     }
-
 
     private Optional<Pair<Integer, ItemStack>> getAppropriateBatteryFromAdjacentItemHandler(Predicate<ItemStack> predicate, IItemHandler adjacent) {
         for (var i = 0; i < adjacent.getSlots(); i++) {
@@ -220,30 +208,67 @@ public class BatteryManagementCover extends CoverBehavior implements IUICover, I
         return Optional.empty();
     }
 
+    private Optional<Integer> getBatteryBufferOpenSlot(ItemStackTransfer batteryInventory) {
+        for (var i = 0; i < batteryInventory.getSlots(); i++) {
+            var slot = batteryInventory.getStackInSlot(i);
+            if (slot.isEmpty()) {
+                return Optional.of(i);
+            }
+        }
+
+        return Optional.empty();
+    }
+
     private void tryImportBatteries(BatteryBufferMachine machine, IItemHandler adjacent) {
         var batteryInventory = machine.getBatteryInventory();
-        var slots = batteryInventory.getSlots();
 
         // when there are no batteries available for our tier, we bail.
-        var appropriateBatteryIndex = getAppropriateBatteryFromAdjacentItemHandler(batteryInventory.getFilter(), adjacent);
-        if (appropriateBatteryIndex.isEmpty()) {
+        var adjacentBattery = getAppropriateBatteryFromAdjacentItemHandler((itemStack -> {
+            if (itemStack.isEmpty()) {
+                return false;
+            }
+
+            var electricItem = GTCapabilityHelper.getElectricItem(itemStack);
+            if (electricItem == null) {
+                return false;
+            }
+
+            return electricItem.getTier() == this.tier;
+        }), adjacent);
+        if (adjacentBattery.isEmpty()) {
             return;
         }
 
-        var itemStack = appropriateBatteryIndex
-                .get()
-                .getRight();
-
-        ItemStack remainder = ItemHandlerHelper.insertItem(batteryInventory, itemStack, true);
-
-        if (remainder.isEmpty() || remainder.getCount() < itemStack.getCount()) {
-            ItemHandlerHelper.insertItem(batteryInventory, itemStack, false);
-            adjacent.extractItem(appropriateBatteryIndex.get().getLeft(), 1, false);
-
-            for (var i = 0; i < slots; i++) {
-                batteryInventory.onContentsChanged(i);
-            }
+        var destinationSlot = getBatteryBufferOpenSlot(batteryInventory);
+        if (destinationSlot.isEmpty()) {
+            return;
         }
+
+        adjacent.extractItem(adjacentBattery.get().getLeft(), 1, false);
+        batteryInventory.insertItem(
+                destinationSlot.get(),
+            adjacentBattery.get().getRight(),
+            false
+        );
+        batteryInventory.onContentsChanged(destinationSlot.get());
+    }
+
+    /**
+     * batteryBufferFilter is used to override a battery buffer's built in filter. This is to help prevent the battery
+     * buffer from "eating" batteries.
+     * @param itemStack an item that may be a battery
+     * @return true if the item is in fact a battery.
+     */
+    private static boolean batteryBufferFilter(ItemStack itemStack){
+        if (GTCapabilityHelper.getElectricItem(itemStack) != null) {
+            return true;
+        }
+
+        if (ConfigHolder.INSTANCE.compat.energy.nativeEUToPlatformNative && GTCapabilityHelper.getForgeEnergyItem(itemStack) != null) {
+            return true;
+        }
+
+        return false;
     }
 
     private boolean shouldExportBattery(IElectricItem item) {
@@ -251,10 +276,12 @@ public class BatteryManagementCover extends CoverBehavior implements IUICover, I
             return item.getCharge() == item.getMaxCharge();
         }
 
-        return item.getCharge() == 0;
+        // here we do a consider a battery that is 1% full as empty because batteries can have enough of a charge to not
+        // be able to send out a packet, and thus get stuck.
+        return item.getMaxCharge() / 100 > item.getCharge();
     }
 
-    private Optional<Pair<Integer,ItemStack>> getExportableBatterySlot(IItemHandler batteryInventory) {
+    private Optional<Pair<Integer,ItemStack>> getExportableBatterySlot(IItemTransfer batteryInventory) {
         var slots = batteryInventory.getSlots();
 
         for (var i = 0; i < slots; i++) {
@@ -306,7 +333,7 @@ public class BatteryManagementCover extends CoverBehavior implements IUICover, I
 
         machine
             .getBatteryInventory()
-            .setFilter(itemStack -> GTCapabilityHelper.getElectricItem(itemStack) != null);
+            .setFilter(BatteryManagementCover::batteryBufferFilter);
 
         var adjacent = getAdjacentItemHandler();
         if (adjacent == null) {

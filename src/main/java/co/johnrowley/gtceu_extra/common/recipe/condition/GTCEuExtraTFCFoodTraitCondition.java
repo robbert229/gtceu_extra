@@ -1,12 +1,10 @@
 package co.johnrowley.gtceu_extra.common.recipe.condition;
 
-import co.johnrowley.gtceu_extra.common.data.GTCEuExtraRecipeConditions;
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.RecipeCondition;
 import com.gregtechceu.gtceu.api.recipe.condition.RecipeConditionType;
 import net.dries007.tfc.common.capabilities.food.FoodCapability;
-import net.dries007.tfc.common.capabilities.food.FoodTrait;
 import net.dries007.tfc.common.capabilities.food.IFood;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;

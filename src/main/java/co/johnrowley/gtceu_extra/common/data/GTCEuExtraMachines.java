@@ -23,7 +23,7 @@ public class GTCEuExtraMachines {
 
     public static void init(){
         if (GTCEu.isKubeJSLoaded()) {
-            GTRegistryInfo.registerFor(GTRegistries.MACHINES.getRegistryName());
+
         }
 
 //        ModLoader.get().postEvent(new GTCEuAPI.RegisterEvent<>(GTRegistries.MACHINES, MachineDefinition.class));
