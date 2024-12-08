@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "SBS",
+    "RHR",
+    "BDB"
+  ],
+  "key": {
+    "S": {
+      "item": "gtceu:steel_rod"
+    },
+    "B": {
+      "item": "gtceu:steel_bolt"
+    },
+    "R": {
+      "item": "gtceu:bronze_ring"
+    },
+    "D": {
+      "tag": "forge:tools/screwdrivers"
+    },
+    "H": {
+      "tag": "forge:tools/hammers"
+    }
+  },
+  "result": {
+    "item": "gtceu_extra:bronze_crankshaft",
+    "count": 1
+  }
+}

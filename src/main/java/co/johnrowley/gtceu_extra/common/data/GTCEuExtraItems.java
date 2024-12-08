@@ -50,6 +50,11 @@ public class GTCEuExtraItems {
             .tag(GTCEuExtraTags.CELLULOSE, GTCEuExtraTags.GOLDEN_BROWN_CELLULOSE)
             .register();
 
+    public static final ItemEntry<ComponentItem> BRONZE_CRANKSHAFT = GTCEU_EXTRA_REGISTRATE
+            .item("bronze_crankshaft", ComponentItem::create)
+            .defaultModel()
+            .register();
+
     public static final ItemEntry<ComponentItem> BATTERY_MANAGEMENT_COVER_ULV = GTCEU_EXTRA_REGISTRATE
             .item("ulv_battery_management_cover", ComponentItem::create)
             .defaultModel()

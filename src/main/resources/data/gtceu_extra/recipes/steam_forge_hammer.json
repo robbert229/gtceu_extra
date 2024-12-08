@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CZC",
+    "GMG",
+    "CIC"
+  ],
+  "key": {
+    "C": {
+      "tag": "gtceu:circuits/lv"
+    },
+    "G": {
+      "item": "gtceu:steel_gear"
+    },
+    "I": {
+      "item": "minecraft:iron_block"
+    },
+    "M": {
+      "item": "gtceu:lp_steam_forge_hammer"
+    },
+    "Z": {
+      "item": "gtceu:bronze_large_fluid_pipe"
+    }
+  },
+  "result": {
+    "item": "gtceu_extra:steam_forge_hammer",
+    "count": 1
+  }
+}

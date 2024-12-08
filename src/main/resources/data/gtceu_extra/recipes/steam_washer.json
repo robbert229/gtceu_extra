@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CSC",
+    "ZMZ",
+    "CRC"
+  ],
+  "key": {
+    "C": {
+      "tag": "gtceu:circuits/lv"
+    },
+    "S": {
+      "item": "gtceu_extra:bronze_crankshaft"
+    },
+    "M": {
+      "item": "gtceu:bronze_machine_casing"
+    },
+    "R": {
+      "item": "gtceu:bronze_rotor"
+    },
+    "Z": {
+      "item": "gtceu:bronze_large_fluid_pipe"
+    }
+  },
+  "result": {
+    "item": "gtceu_extra:steam_washer",
+    "count": 1
+  }
+}

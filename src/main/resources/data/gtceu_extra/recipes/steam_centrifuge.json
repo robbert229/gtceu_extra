@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CSC",
+    "GMG",
+    "CSC"
+  ],
+  "key": {
+    "C": {
+      "tag": "gtceu:circuits/lv"
+    },
+    "S": {
+      "item": "gtceu_extra:bronze_crankshaft"
+    },
+    "M": {
+      "item": "gtceu:bronze_machine_casing"
+    },
+    "G": {
+      "item": "gtceu:steel_gear"
+    }
+  },
+  "result": {
+    "item": "gtceu_extra:steam_centrifuge",
+    "count": 1
+  }
+}

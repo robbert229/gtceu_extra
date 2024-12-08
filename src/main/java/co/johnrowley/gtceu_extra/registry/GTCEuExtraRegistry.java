@@ -8,7 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 public class GTCEuExtraRegistry {
     public static GTRegistrate GTCEU_EXTRA_REGISTRATE = GTRegistrate.create(GTCEuExtra.MOD_ID);
 
-    public static final FoodTrait RadiationSterilized = FoodTrait.register(
-            new ResourceLocation(GTCEuExtra.MOD_ID,"radiation_sterilized"),
-            new FoodTrait(0.01F,"gtceu_extra.radiation_sterilized"));
+//    public static final FoodTrait RadiationSterilized = FoodTrait.register(
+//            new ResourceLocation(GTCEuExtra.MOD_ID,"radiation_sterilized"),
+//            new FoodTrait(0.01F,"gtceu_extra.radiation_sterilized"));
 }

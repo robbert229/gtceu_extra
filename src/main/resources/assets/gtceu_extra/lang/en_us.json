@@ -36,5 +36,16 @@
   "cover.battery_management_cover.mode.import": "Import Battery",
   "cover.battery_management_cover.mode.export": "Export Battery",
   "cover.battery_management_cover.threshold.full": "Export When Battery Is Full",
-  "cover.battery_management_cover.threshold.empty": "Export When Battery Is Empty"
+  "cover.battery_management_cover.threshold.empty": "Export When Battery Is Empty",
+
+  "block.gtceu_extra.steam_squasher": "Steam Squasher",
+  "block.gtceu_extra.steam_squasher.tooltip": "A multiblock Compressor",
+  "block.gtceu_extra.steam_washer": "A multiblock Washer",
+  "block.gtceu_extra.steam_washer.tooltip": "A multiblock Washer",
+  "block.gtceu_extra.steam_centrifuge": "A multiblock Centrifuge",
+  "block.gtceu_extra.steam_centrifuge.tooltip": "A multiblock Centrifuge without byproducts",
+  "block.gtceu_extra.steam_mixer": "Steam Mixer",
+  "block.gtceu_extra.steam_mixer.tooltip": "A multiblock Mixer",
+  "block.gtceu_extra.steam_forge_hammer": "Steam Forge Hammer",
+  "block.gtceu_extra.steam_forge_hammer.tooltip": "A multiblock Forge Hammer"
 }

@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CZC",
+    "GMG",
+    "CPC"
+  ],
+  "key": {
+    "C": {
+      "tag": "gtceu:circuits/lv"
+    },
+    "G": {
+      "item": "gtceu:bronze_gear"
+    },
+    "P": {
+      "item": "minecraft:piston"
+    },
+    "M": {
+      "item": "gtceu:lp_steam_compressor"
+    },
+    "Z": {
+      "item": "gtceu:bronze_large_fluid_pipe"
+    }
+  },
+  "result": {
+    "item": "gtceu_extra:steam_squasher",
+    "count": 1
+  }
+}
