@@ -9,6 +9,8 @@ jobs:
   main:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
@@ -60,7 +62,7 @@ jobs:
           github-prerelease: false
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-          name: Gravitas² Core 1.20.1-${{ steps.version.outputs.result }}
+          name: GregTechCEu Extra Unofficial 1.20.1-${{ steps.version.outputs.result }}
           version: ${{ steps.version.outputs.result }}
           version-type: ${{ steps.version_type.outputs.result }}
           java: 17

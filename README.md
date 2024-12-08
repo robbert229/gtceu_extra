@@ -15,6 +15,12 @@ It is in its early stages of development.
 These covers allow for battery buffers to import and export batteries into adjacent inventories. This allows for some 
 creative setups for power distribution.
 
+#### Steam Multiblocks
+Steam Multi-blocks have been added for bulk processing in the steam age. They require a lot of bronze to create, and are
+relatively limited in nature, however they allow for faster processing.
+
+The steam multi-blocks do not accept a steam bus, and instead require ULV and above bus's. 
+
 ### Future Features
 
 #### Algae
@@ -48,3 +54,13 @@ Several art assets have been leveraged from GTCEu Modern, leveraging their LGPL 
 
 * The Battery Management Cover
   * Is based on upstream Cover textures.
+
+### GTNH
+
+A number of multiblocks have been incorporated from GTNH.
+
+* Steam Squasher
+* Steam Washer
+* Steam Centrifuge
+* Steam Forge Hammer
+* Steam Mixer
